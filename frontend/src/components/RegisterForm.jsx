@@ -1,0 +1,117 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate } from 'react-router-dom';
+
+function RegisterForm() {
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    referCode: ''
+  });
+
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevData => ({ ...prevData, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate passwords match
+    if (formData.password !== formData.confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
+
+    try {
+      const { name, phone, email, password, referCode } = formData;
+
+      // Send to backend (only required fields)
+      
+      const res = await axios.post('http://localhost:5000/api/register', {
+        name,
+        phone,
+        email,
+        password,
+        confirmPassword: formData.confirmPassword, 
+        referCode: referCode || null
+      });
+      
+      console.log("abcd");
+    
+
+      alert(res.data.message || 'Registration successful!');
+      setFormData({
+        name: '',
+        phone: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        referCode: ''
+      });
+
+      navigate('/login');
+    } catch (error) {
+      console.error("Registration failed:", error.response?.data || error.message);
+      alert(error.response?.data?.message || 'Registration failed');
+    }
+  };
+
+  return (
+    <div className="container d-flex justify-content-center align-items-center vh-100">
+      <div className="card p-4 shadow w-100" style={{ maxWidth: '500px' }}>
+        <h2 className="text-center mb-4">Create Account</h2>
+        <form onSubmit={handleSubmit}>
+          {['name', 'phone', 'email'].map(field => (
+            <div className="mb-3" key={field}>
+              <label className="form-label">{field[0].toUpperCase() + field.slice(1)}</label>
+              <input
+                type={field === 'email' ? 'email' : 'text'}
+                name={field}
+                className="form-control"
+                value={formData[field]}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          ))}
+
+          {['password', 'confirmPassword'].map(field => (
+            <div className="mb-3" key={field}>
+              <label className="form-label">{field === 'confirmPassword' ? 'Confirm Password' : 'Password'}</label>
+              <input
+                type="password"
+                name={field}
+                className="form-control"
+                value={formData[field]}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          ))}
+
+          <div className="mb-3">
+            <label className="form-label">Refer Code</label>
+            <input
+              type="text"
+              name="referCode"
+              className="form-control"
+              value={formData.referCode}
+              onChange={handleChange}
+            />
+          </div>
+
+          <button type="submit" className="btn btn-primary w-100">Register</button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default RegisterForm;
