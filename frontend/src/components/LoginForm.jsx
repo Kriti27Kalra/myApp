@@ -14,14 +14,18 @@ function LoginForm() {
     e.preventDefault();
 
     try {
-      // Sending form data to the backend
       const res = await axios.post('/api/login', formData);
-      
-      // Handle successful login
-      alert(res.data.message);  // Display the success message from the backend
-      navigate('/dashboard');  // Redirect to the dashboard
+
+      alert(res.data.message);
+     
+      if (res.data.user) {
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+        console.log('User saved to localStorage:', res.data.user);
+      } else {
+        console.error('No user data returned from backend');
+      }
+      navigate('/dashboard');
     } catch (error) {
-      // Handle error gracefully
       console.error('Login error:', error);
       alert(error.response?.data?.message || 'Login failed');
     }
