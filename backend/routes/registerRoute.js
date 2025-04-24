@@ -1,41 +1,83 @@
 const express = require('express');
+const { body, validationResult } = require('express-validator');
 const router = express.Router();
 const db = require('../config/db');
 
-// Register a new user
-router.post('/register', (req, res) => {
-  const { name, phone, email, password, referCode } = req.body;
+// Generate random 8-character user ID
+const generateUserId = () => {
+  return Math.random().toString(36).substr(2, 8).toUpperCase(); // e.g., "A1B2C3D4"
+};
 
-  // Print the data received from the frontend
-  console.log('User Data:', req.body); // This will print the user data in the backend terminal
-
-  // Check if the email already exists
-  const checkEmailQuery = 'SELECT * FROM consumers WHERE email = ?';
-  db.query(checkEmailQuery, [email], (err, result) => {
-    if (err) {
-      console.error('Error checking email:', err);
-      return res.status(500).json({ message: 'Internal server error' });
+// Register route
+router.post(
+  '/register',
+  [
+    body('name').trim().escape(),
+    body('phone').trim().escape(),
+    body('email').isEmail().normalizeEmail(),
+    body('password').trim(),
+    body('referCode').optional().trim().escape()
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ message: 'Validation failed', errors: errors.array() });
     }
 
-    // If email exists, send a response
-    if (result.length > 0) {
-      return res.status(400).json({ message: 'Email already exists' });
-    }
+    const { name, phone, email, password, referCode } = req.body;
+    console.log('Received User Data:', { name, phone, email, password, referCode });
 
-    // If email doesn't exist, proceed with registration
-    const sql = 'INSERT INTO consumers (name, phone, email, password, refer_code) VALUES (?, ?, ?, ?, ?)';
-    db.query(sql, [name, phone, email, password, referCode], (err, result) => {
-      if (err) {
-        console.error('Error inserting user:', err);
-        return res.status(500).json({ message: 'Registration failed' });
+    try {
+      // Check if email already exists
+      const [existingEmail] = await db.promise().query('SELECT * FROM consumers WHERE email = ?', [email]);
+      if (existingEmail.length > 0) {
+        return res.status(400).json({ message: 'Email already exists' });
       }
 
-      // Print the inserted data to the backend terminal
-      console.log('Inserted User Data:', { name, phone, email, password, referCode });
+      // Generate unique user ID
+      let userId = generateUserId();
+      while (true) {
+        const [existingUser] = await db.promise().query('SELECT * FROM consumers WHERE user_id = ?', [userId]);
+        if (existingUser.length === 0) break;
+        userId = generateUserId();
+      }
 
-      return res.status(200).json({ message: 'User registered successfully' });
-    });
-  });
-});
+      // Check referCode validity and get referring user ID
+      let referredByUserId = null;
+      if (referCode) {
+        const [referrer] = await db.promise().query('SELECT user_id FROM consumers WHERE refer_code = ?', [referCode]);
+        if (referrer.length === 0) {
+          return res.status(400).json({ message: 'Invalid refer code' });
+        }
+        referredByUserId = referrer[0].user_id;
+      }
+
+      // Insert new user
+      const insertQuery = `
+        INSERT INTO consumers (user_id, name, phone, email, password, refer_code, referred_by_user_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `;
+      await db.promise().query(insertQuery, [userId, name, phone, email, password, referCode, referredByUserId]);
+
+      // Update referrer's count
+      if (referredByUserId) {
+        const updateReferCountQuery = 'UPDATE consumers SET refer_count = refer_count + 1 WHERE user_id = ?';
+        await db.promise().query(updateReferCountQuery, [referredByUserId]);
+      }
+
+      console.log('Inserted User:', { userId, name, phone, email, password, referCode, referredByUserId });
+
+      return res.status(200).json({
+        message: 'User registered successfully',
+        userId,
+        referredByUserId,
+        referCode
+      });
+    } catch (err) {
+      console.error('Error registering user:', err);
+      return res.status(500).json({ message: 'Registration failed' });
+    }
+  }
+);
 
 module.exports = router;
