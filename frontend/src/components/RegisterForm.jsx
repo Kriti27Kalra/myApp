@@ -29,24 +29,29 @@ function RegisterForm() {
       return;
     }
 
-    try {
-      const { name, phone, email, password, referCode } = formData;
+    // Validate email format
+    if (!formData.email.includes('@')) {
+      alert('Please enter a valid email address');
+      return;
+    }
 
-      // Send to backend (only required fields)
-      
+    // Prepare the data to send to the backend
+    const { name, phone, email, password, referCode } = formData;
+
+    try {
+      // Send the data to backend
       const res = await axios.post('http://localhost:5000/api/register', {
         name,
         phone,
         email,
         password,
-        confirmPassword: formData.confirmPassword, 
-        referCode: referCode || null
+        referCode: referCode || null  // Include referCode only if it's provided
       });
-      
-      console.log("abcd");
-    
 
+      console.log("Registration successful:", res.data.message);
       alert(res.data.message || 'Registration successful!');
+
+      // Clear form data
       setFormData({
         name: '',
         phone: '',
@@ -56,10 +61,13 @@ function RegisterForm() {
         referCode: ''
       });
 
+      // Redirect to login page after successful registration
       navigate('/login');
     } catch (error) {
-      console.error("Registration failed:", error.response?.data || error.message);
-      alert(error.response?.data?.message || 'Registration failed');
+      // Check if there's a specific error message from the backend
+      const errorMessage = error.response?.data?.message || 'Registration failed';
+      console.error("Registration failed:", errorMessage);
+      alert(errorMessage); // Display error message
     }
   };
 

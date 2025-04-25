@@ -33,13 +33,14 @@ router.post('/login', (req, res) => {
         return res.status(200).json({
           message: 'Login successful',
           user: {
+            id: user.id, // ✅ added internal database id
             userId: user.user_id,
             name: user.name,
             email: user.email,
             phone: user.phone,
             referCode: user.refer_code,
             referredByUserId: user.referred_by_user_id,
-            referredByReferCode: referredByReferCode,
+            referredByReferCode: referredByReferCode
           }
         });
       });
@@ -47,11 +48,14 @@ router.post('/login', (req, res) => {
       return res.status(200).json({
         message: 'Login successful',
         user: {
+          id: user.id, // ✅ added internal database id
           userId: user.user_id,
           name: user.name,
           email: user.email,
           phone: user.phone,
           referCode: user.refer_code,
+          referredByUserId: null,
+          referredByReferCode: null
         }
       });
     }
