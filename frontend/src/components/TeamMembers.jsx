@@ -1,9 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import DashboardNavbar from './DashboardNavbar';
+
 
 const TeamMembers = () => {
-  const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) {
+      // Agar user localStorage me nahi mila to login page pe bhej do
+      navigate('/login');
+    }
+  }, [navigate]);
+
+
+
 
   const [teamMembers, setTeamMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +50,9 @@ const TeamMembers = () => {
   }, [referCode]);
 
   return (
+    <div>
+        <DashboardNavbar /> {/* Add DashboardNavbar here */}
+
     <div className="container mt-5">
       <h2 className="text-center mb-4">Your Team Members</h2>
 
@@ -78,6 +93,9 @@ const TeamMembers = () => {
         </button>
       </div>
     </div>
+    </div>
+
+
   );
 };
 

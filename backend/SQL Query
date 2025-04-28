@@ -1,0 +1,57 @@
+CREATE DATABASE myappdb;
+USE myappdb;
+CREATE TABLE consumers (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100),
+  phone VARCHAR(20),
+  email VARCHAR(100) UNIQUE,
+  password VARCHAR(100),
+  refer_code VARCHAR(100),
+  mytime DATETIME DEFAULT CURRENT_TIMESTAMP,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+select * from consumers;
+
+
+describe consumers;
+SHOW CREATE TABLE consumers;
+select * from consumers;
+use myappdb;
+ALTER TABLE consumers ADD COLUMN user_id VARCHAR(10) UNIQUE;
+select * from consumers;
+SELECT user_id, name, email FROM consumers;
+select * from consumers;
+select user_id from consumers;
+SHOW COLUMNS FROM consumers;
+select * from consumers;
+
+select * from consumers;
+SELECT * FROM consumers where refer_code='90';
+-- Check if the refer_code exists in the database
+SELECT user_id, refer_code FROM consumers WHERE refer_code = '90';
+
+-- Check if any users were referred by the given user_id (replace `user_id` with the actual id of the user)
+SELECT user_id, name, email FROM consumers WHERE referred_by_user_id = '<>';
+ALTER TABLE consumers ADD COLUMN refer_code_used BOOLEAN DEFAULT FALSE;
+SELECT user_id, name, email, refer_code FROM consumers;
+
+
+ALTER TABLE consumers ADD COLUMN refer_count INT DEFAULT 0;
+select * from consumers;
+select * from consumers;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
