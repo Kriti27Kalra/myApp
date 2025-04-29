@@ -6,15 +6,7 @@ import DashboardNavbar from './DashboardNavbar';
 const TeamMembers = () => {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) {
-      // Agar user localStorage me nahi mila to login page pe bhej do
-      navigate('/login');
-    }
-  }, [navigate]);
-
-
+  
 
 
   const [teamMembers, setTeamMembers] = useState([]);

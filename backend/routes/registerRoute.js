@@ -8,7 +8,7 @@ const generateUserId = () => {
   return Math.random().toString(36).substr(2, 8).toUpperCase(); // e.g., "A1B2C3D4"
 };
 
-// Register route
+// Register route and sanitization
 router.post(
   '/register',
   [

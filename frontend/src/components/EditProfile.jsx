@@ -5,13 +5,7 @@ import DashboardNavbar from './DashboardNavbar';
 
 const EditProfile = () => {
   const navigate = useNavigate();
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) {
-      // Agar login nahi kia hai to login page pe le jao
-      navigate('/login');
-    }
-  }, [navigate]);
+
 
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem('user');

@@ -4,17 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import DashboardNavbar from './DashboardNavbar';
 
 
-  const Dashboard = () => {   // EditProfile.jsx mein bhi same logic lagega
+  const Dashboard = () => {   
     const navigate = useNavigate();
   
-    useEffect(() => {
-      const user = JSON.parse(localStorage.getItem('user'));
-      if (!user) {
-        // Agar user localStorage me nahi mila to login page pe bhej do
-        navigate('/login');
-      }
-    }, [navigate]);
-
+    
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem('user');
     return storedUser ? JSON.parse(storedUser) : null;

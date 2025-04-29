@@ -46,8 +46,8 @@ function RegisterForm() {
         referCode: referCode || null
       });
 
-      console.log("Registration successful:", res.data.message);
-      alert(res.data.message || 'Registration successful!');
+      console.log("Registration successful:", res.data.message, "User ID:", res.data.userId);
+       alert(`${res.data.message || 'Registration successful!'}\nYour User ID: ${res.data.userId}`);
 
       setFormData({
         name: '',
@@ -87,7 +87,7 @@ function RegisterForm() {
                 />
               </div>
             ))}
-
+ 
             {['password', 'confirmPassword'].map(field => (
               <div className="mb-3" key={field}>
                 <label className="form-label">{field === 'confirmPassword' ? 'Confirm Password' : 'Password'}</label>
